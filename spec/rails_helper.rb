@@ -43,3 +43,26 @@ RSpec.configure do |config|
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
 end
+
+require 'capybara/rspec'
+require 'capybara-screenshot/rspec'
+
+Capybara.asset_host = 'http://localhost:3000'
+
+module Capybara
+  module Screenshot
+    module RSpec
+             TextReporter
+      module TextReporter
+        # Copied from capybara-screenshot-1.0.22/lib/capybara-screenshot/rspec/text_reporter.rb and
+        # changed to add 'file://' prefix
+        def output_screenshot_info(example)
+          return unless (screenshot = example.metadata[:screenshot])
+          output.puts # Extra line to prevent the path from running into the 'ETA:' part and becoming an invalid path.
+          output.puts(long_padding + CapybaraScreenshot::Helpers.yellow("HTML screenshot:  file://#{screenshot[:html]}")) if screenshot[:html]
+          output.puts(long_padding + CapybaraScreenshot::Helpers.yellow("Image screenshot: file://#{screenshot[:image]}")) if screenshot[:image]
+        end
+      end
+    end
+  end
+end
